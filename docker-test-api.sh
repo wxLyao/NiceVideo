@@ -211,7 +211,7 @@ echo -e "${BLUE}🔧 故障排除建议:${NC}"
 echo -e "  1. 检查所有服务是否健康: ${YELLOW}./docker-health-check.sh${NC}"
 echo -e "  2. 查看服务日志: ${YELLOW}cd docker && docker-compose logs -f [service_name]${NC}"
 echo -e "  3. 重启问题服务: ${YELLOW}cd docker && docker-compose restart [service_name]${NC}"
-echo -e "  4. 完全重启: ${YELLOW}./docker-stop-wsl.sh && ./docker-start-wsl.sh${NC}"
+echo -e "  4. 完全重启: ${YELLOW}./stop.sh && ./start.sh${NC}"
 
 echo
 echo -e "${GREEN}🎉 API测试完成！${NC}"
