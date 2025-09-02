@@ -23,3 +23,4 @@ public class ErrorMessages {
     public static final String PARAMETER_VALIDATION_ERROR = "参数校验失败";
 }
 
+

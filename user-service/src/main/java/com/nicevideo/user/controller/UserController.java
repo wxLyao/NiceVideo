@@ -86,5 +86,23 @@ public class UserController {
         User user = userService.getByUsername(username);
         return Result.success(user);
     }
+
+    /**
+     * 根据邮箱查询用户
+     */
+    @GetMapping("/email/{email}")
+    public Result<User> getByEmail(@PathVariable String email) {
+        User user = userService.getByEmail(email);
+        return Result.success(user);
+    }
+
+    /**
+     * 根据手机号查询用户
+     */
+    @GetMapping("/phone/{phone}")
+    public Result<User> getByPhone(@PathVariable String phone) {
+        User user = userService.getByPhone(phone);
+        return Result.success(user);
+    }
 }
 
