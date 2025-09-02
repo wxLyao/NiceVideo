@@ -1,0 +1,130 @@
+services:
+  # Eureka服务注册中心
+  eureka-server:
+    build:
+      context: ../eureka-server
+      dockerfile: Dockerfile
+    container_name: nicevideo-eureka-server
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+    ports:
+      - "8761:8761"
+    networks:
+      - nicevideo-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8761/actuator/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 60s
+    restart: always
+
+  # 配置中心服务
+  config-service:
+    build:
+      context: ../config-service
+      dockerfile: Dockerfile
+    container_name: nicevideo-config-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    ports:
+      - "8888:8888"
+    networks:
+      - nicevideo-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8888/actuator/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 60s
+    restart: always
+
+  # API网关服务
+  gateway-service:
+    build:
+      context: ../gateway-service
+      dockerfile: Dockerfile
+    container_name: nicevideo-gateway-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - SPRING_CLOUD_CONFIG_URI=http://config-service:8888
+    ports:
+      - "8080:8080"
+    networks:
+      - nicevideo-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 90s
+    restart: always
+
+  # 用户服务
+  user-service:
+    build:
+      context: ../user-service
+      dockerfile: Dockerfile
+    container_name: nicevideo-user-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    ports:
+      - "8081:8081"
+    networks:
+      - nicevideo-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8081/actuator/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 90s
+    restart: always
+
+  # 认证服务
+  auth-service:
+    build:
+      context: ../auth-service
+      dockerfile: Dockerfile
+    container_name: nicevideo-auth-service
+    environment:
+      - SPRING_PROFILES_ACTIVE=local
+      - EUREKA_CLIENT_SERVICE_URL_DEFAULTZONE=http://eureka-server:8761/eureka/
+      - USER_SERVICE_URL=http://user-service:8081
+    ports:
+      - "8082:8082"
+    networks:
+      - nicevideo-network
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+      config-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8082/actuator/health"]
+      timeout: 20s
+      retries: 10
+      interval: 30s
+      start_period: 90s
+    restart: always
+
+networks:
+  nicevideo-network:
+    driver: bridge
