@@ -7,6 +7,7 @@ import com.nicevideo.auth.service.AuthService;
 import com.nicevideo.common.result.Result;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestMethod;
 
 import javax.validation.Valid;
 
@@ -48,9 +49,9 @@ public class AuthController {
     }
     
     /**
-     * 验证Token
+     * 验证Token (支持GET和POST方法)
      */
-    @GetMapping("/validate")
+    @RequestMapping(value = "/validate", method = {RequestMethod.GET, RequestMethod.POST})
     public Result<Boolean> validateToken(@RequestParam String token) {
         boolean isValid = authService.validateToken(token);
         return Result.success(isValid);
